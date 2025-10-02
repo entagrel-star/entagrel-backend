@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  const isBlogPage = location.pathname === '/blog';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -16,12 +18,19 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
+  const homeNavLinks = [
     { href: '#services', label: 'Services', isRoute: false },
     { href: '#process', label: 'Process', isRoute: false },
     { href: '/blog', label: 'Blog', isRoute: true },
     { href: '#contact', label: 'Contact', isRoute: false },
   ];
+
+  const blogNavLinks = [
+    { href: '/', label: 'Home', isRoute: true },
+    { href: '/blog', label: 'Blog', isRoute: true },
+  ];
+
+  const navLinks = isBlogPage ? blogNavLinks : homeNavLinks;
 
   const handleLinkClick = () => {
     setIsMobileMenuOpen(false);
@@ -34,9 +43,11 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-6 py-4 flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-foreground">
-          Entagrel <span className="text-primary">Marketing</span>
-        </h1>
+        <Link to="/">
+          <h1 className="text-2xl font-bold text-foreground cursor-pointer">
+            Entagrel <span className="text-primary">Marketing</span>
+          </h1>
+        </Link>
 
         <nav className="hidden md:flex space-x-8">
           {navLinks.map((link) =>
@@ -60,11 +71,13 @@ const Header = () => {
           )}
         </nav>
 
-        <a href="#contact" className="hidden md:block">
-          <Button size="lg" className="shadow-lg">
-            Get Free Consultation
-          </Button>
-        </a>
+        {!isBlogPage && (
+          <a href="#contact" className="hidden md:block">
+            <Button size="lg" className="shadow-lg">
+              Get Free Consultation
+            </Button>
+          </a>
+        )}
 
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}

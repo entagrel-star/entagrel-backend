@@ -1,7 +1,5 @@
 import Header from '@/components/Header';
 import Blog from '@/components/Blog';
-import Newsletter from '@/components/Newsletter';
-import Footer from '@/components/Footer';
 
 const BlogPage = () => {
   return (
@@ -17,9 +15,7 @@ const BlogPage = () => {
           </p>
         </div>
         <Blog />
-        <Newsletter />
       </main>
-      <Footer />
     </div>
   );
 };
