@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Menu, X } from 'lucide-react';
 
@@ -16,10 +17,10 @@ const Header = () => {
   }, []);
 
   const navLinks = [
-    { href: '#services', label: 'Services' },
-    { href: '#process', label: 'Process' },
-    { href: '#blog', label: 'Insights' },
-    { href: '#contact', label: 'Contact' },
+    { href: '#services', label: 'Services', isRoute: false },
+    { href: '#process', label: 'Process', isRoute: false },
+    { href: '/blog', label: 'Blog', isRoute: true },
+    { href: '#contact', label: 'Contact', isRoute: false },
   ];
 
   const handleLinkClick = () => {
@@ -38,15 +39,25 @@ const Header = () => {
         </h1>
 
         <nav className="hidden md:flex space-x-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground hover:text-primary transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.isRoute ? (
+              <Link
+                key={link.href}
+                to={link.href}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground hover:text-primary transition-colors"
+              >
+                {link.label}
+              </a>
+            )
+          )}
         </nav>
 
         <a href="#contact" className="hidden md:block">
@@ -66,16 +77,27 @@ const Header = () => {
 
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-sm">
-          {navLinks.map((link) => (
-            <a
-              key={link.href}
-              href={link.href}
-              onClick={handleLinkClick}
-              className="block text-center py-3 px-6 text-foreground hover:bg-accent transition-colors"
-            >
-              {link.label}
-            </a>
-          ))}
+          {navLinks.map((link) =>
+            link.isRoute ? (
+              <Link
+                key={link.href}
+                to={link.href}
+                onClick={handleLinkClick}
+                className="block text-center py-3 px-6 text-foreground hover:bg-accent transition-colors"
+              >
+                {link.label}
+              </Link>
+            ) : (
+              <a
+                key={link.href}
+                href={link.href}
+                onClick={handleLinkClick}
+                className="block text-center py-3 px-6 text-foreground hover:bg-accent transition-colors"
+              >
+                {link.label}
+              </a>
+            )
+          )}
         </div>
       )}
     </header>
