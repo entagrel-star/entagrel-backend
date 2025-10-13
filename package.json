@@ -2,15 +2,15 @@
   "name": "vite_react_shadcn_ts",
   "private": true,
   "version": "0.0.0",
-
+  "type": "commonjs",
   "scripts": {
-  "dev": "vite",
-  "build": "vite build && tsc -p tsconfig.server.json",
-  "build:dev": "vite build --mode development",
-  "lint": "eslint .",
-  "preview": "vite preview",
-  "server": "node dist/Server/server.cjs"
-},
+    "dev": "vite",
+    "build": "vite build && tsc -p tsconfig.server.json",
+    "build:dev": "vite build --mode development",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "server": "node dist/Server/server.js"
+  },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
     "@prisma/client": "^6.17.1",
