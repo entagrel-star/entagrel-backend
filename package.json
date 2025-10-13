@@ -9,11 +9,7 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-<<<<<<< HEAD
     "server": "node dist/Server/server.js"
-=======
-    "server": "ts-node Server/server.ts"
->>>>>>> dc4aef5b7234f0988298d972942e05a8a702f55c
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
