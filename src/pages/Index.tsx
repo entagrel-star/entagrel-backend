@@ -4,6 +4,8 @@ import Services from '@/components/Services';
 import Process from '@/components/Process';
 import Footer from '@/components/Footer';
 
+
+
 const Index = () => {
   return (
     <div className="min-h-screen">
@@ -12,8 +14,10 @@ const Index = () => {
         <Hero />
         <Services />
         <Process />
+        
       </main>
       <Footer />
+      
     </div>
   );
 };

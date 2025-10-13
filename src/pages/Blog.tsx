@@ -1,5 +1,6 @@
 import Header from '@/components/Header';
 import Blog from '@/components/Blog';
+import Newsletter from '@/components/Newsletter';
 
 const BlogPage = () => {
   return (
@@ -15,6 +16,7 @@ const BlogPage = () => {
           </p>
         </div>
         <Blog />
+        <Newsletter />
       </main>
     </div>
   );

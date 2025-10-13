@@ -25,12 +25,7 @@ const Hero = () => {
                 Book a Strategy Call
               </Button>
             </a>
-            <a
-              href="#newsletter"
-              className="text-primary font-medium py-3 px-8 hover:underline flex items-center gap-2"
-            >
-              Join AI Insider <ArrowRight className="w-4 h-4" />
-            </a>
+           
           </div>
         </div>
       </div>

@@ -41,12 +41,8 @@ const Blog = () => {
     >
       <div className="container mx-auto px-6">
         <div className="text-center mb-12">
-          <h3 className="text-3xl md:text-4xl font-bold text-foreground">
-            AI & Marketing Insights
-          </h3>
-          <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-            Our latest analysis on the trends shaping the future of digital marketing.
-          </p>
+          
+         
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">

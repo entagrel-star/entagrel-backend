@@ -8,6 +8,7 @@ const Header = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
   const isBlogPage = location.pathname === '/blog';
+  const isContactPage = location.pathname ==='/contact-us';
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,11 +19,12 @@ const Header = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Updated: Contact now links to /contact-us
   const homeNavLinks = [
     { href: '#services', label: 'Services', isRoute: false },
     { href: '#process', label: 'Process', isRoute: false },
     { href: '/blog', label: 'Blog', isRoute: true },
-    { href: '#contact', label: 'Contact', isRoute: false },
+    { href: '/contact-us', label: 'Contact', isRoute: true }, // ✅ Updated
   ];
 
   const blogNavLinks = [
@@ -30,7 +32,20 @@ const Header = () => {
     { href: '/blog', label: 'Blog', isRoute: true },
   ];
 
-  const navLinks = isBlogPage ? blogNavLinks : homeNavLinks;
+  const ContactNavLink = [
+    { href: '/', label: 'Home', isRoute: true },
+    { href: '/contact-us', label: 'Contact Us', isRoute: true },
+    
+  ]
+
+  let navLinks;
+  if(isBlogPage){
+    navLinks = blogNavLinks
+  }else if(isContactPage){
+    navLinks = ContactNavLink
+  } else{
+    navLinks = homeNavLinks
+  }
 
   const handleLinkClick = () => {
     setIsMobileMenuOpen(false);
@@ -49,6 +64,7 @@ const Header = () => {
           </h1>
         </Link>
 
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex space-x-8">
           {navLinks.map((link) =>
             link.isRoute ? (
@@ -71,14 +87,7 @@ const Header = () => {
           )}
         </nav>
 
-        {!isBlogPage && (
-          <a href="#contact" className="hidden md:block">
-            <Button size="lg" className="shadow-lg">
-              Get Free Consultation
-            </Button>
-          </a>
-        )}
-
+        {/* Mobile Menu Toggle Button */}
         <button
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           className="md:hidden text-foreground text-2xl"
@@ -88,6 +97,7 @@ const Header = () => {
         </button>
       </div>
 
+      {/* Mobile Navigation */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-white/95 backdrop-blur-sm">
           {navLinks.map((link) =>

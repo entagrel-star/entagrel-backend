@@ -22,18 +22,38 @@ const Newsletter = () => {
     content: '',
   });
 
-  const isValidEmail = (email: string) => {
-    return email.includes('@') && email.length > 5;
-  };
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
 
-  const handleSubscribe = () => {
-    if (isValidEmail(email)) {
-      toast.success('Successfully subscribed to AI Insider!');
-      setEmail('');
-    } else {
-      toast.error('Please enter a valid email address');
+  const handleSubscribe = async () => {
+  if (!isValidEmail(email)) {
+    toast.error('Please enter a valid email address');
+    return;
+  }
+
+  try {
+    const response = await fetch('http://localhost:5000/api/saveEmail', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.error || 'Failed to subscribe');
     }
-  };
+
+    toast.success(data.message || 'Subscribed successfully!');
+    setEmail('');
+  } catch (error: any) {
+    console.error(error);
+    toast.error(error.message || 'Failed to subscribe');
+  }
+};
+
 
   const handlePreview = async () => {
     if (!isValidEmail(email)) {
@@ -88,22 +108,7 @@ const Newsletter = () => {
               >
                 Subscribe
               </Button>
-              <Button
-                onClick={handlePreview}
-                disabled={!isValidEmail(email) || isGenerating}
-                variant="secondary"
-                size="lg"
-                className="font-bold"
-              >
-                {isGenerating ? (
-                  'Generating...'
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    AI Preview
-                  </>
-                )}
-              </Button>
+             
             </div>
           </div>
         </div>
