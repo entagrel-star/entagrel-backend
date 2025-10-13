@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build && tsc -p tsconfig.server.json",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "server": "ts-node server/server.ts"
+    "server": "node dist/Server/server.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
