@@ -14,12 +14,15 @@ app.use(express.json());
 // ✅ CORS: Allow both local dev and your deployed frontend
 app.use(cors({
   origin: [
-    "http://localhost:5173", // Local Vite dev server
-    "https://entagrel-frontend.onrender.com", // Replace this with your actual frontend Render URL
+    "http://localhost:5173",             // local dev
+    "https://entagrel-frontend.onrender.com", // frontend on Render
+    "https://entagrel.com",              // your custom backend domain
+    "https://www.entagrel.com"           // optional www version
   ],
   methods: ["GET", "POST"],
   allowedHeaders: ["Content-Type"],
 }));
+
 
 // ✅ Health check route for Render
 app.get("/healthz", (req, res) => {
