@@ -9,7 +9,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 const Newsletter = () => {
@@ -22,39 +21,53 @@ const Newsletter = () => {
     content: '',
   });
 
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
+  // ✅ Email validation
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
 
+  // ✅ Handles newsletter subscription
   const handleSubscribe = async () => {
-  if (!isValidEmail(email)) {
-    toast.error('Please enter a valid email address');
-    return;
-  }
-
-  try {
-    const response = await fetch('http://localhost:5000/api/saveEmail', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error || 'Failed to subscribe');
+    if (!isValidEmail(email)) {
+      toast.error('Please enter a valid email address');
+      return;
     }
 
-    toast.success(data.message || 'Subscribed successfully!');
-    setEmail('');
-  } catch (error: any) {
-    console.error(error);
-    toast.error(error.message || 'Failed to subscribe');
-  }
-};
+    try {
+      const API = import.meta.env.VITE_API_URL;
 
+      if (!API) {
+        throw new Error('API URL not configured. Please check .env file.');
+      }
 
+      const response = await fetch(`${API}/api/saveEmail`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+
+      // Handle non-JSON or empty responses gracefully
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to subscribe');
+      }
+
+      toast.success(data.message || 'Subscribed successfully!');
+      setEmail('');
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || 'Failed to subscribe. Please try again.');
+    }
+  };
+
+  // ✅ Handles preview modal for AI newsletter preview
   const handlePreview = async () => {
     if (!isValidEmail(email)) {
       toast.error('Please enter a valid email address');
@@ -62,13 +75,13 @@ const isValidEmail = (email: string): boolean => {
     }
 
     setIsGenerating(true);
-    
-    // Simulate AI generation
+
+    // Simulate AI-based content preview
     setTimeout(() => {
       const domain = email.split('@')[1];
       setPreviewContent({
         title: `AI Marketing Insights for ${domain}`,
-        content: `Welcome to AI Insider! Based on your domain (${domain}), we've curated personalized insights on leveraging AI for digital marketing growth.\n\nIn this week's edition:\n• Advanced Meta Ads strategies using machine learning\n• Google's latest algorithm updates and what they mean for your campaigns\n• New AI tools that are revolutionizing creative production\n\nJoin thousands of marketers who are staying ahead of the curve with data-driven strategies powered by artificial intelligence.`,
+        content: `Welcome to AI Insider! Based on your domain (${domain}), we've curated personalized insights on leveraging AI for digital marketing growth.\n\nIn this week's edition:\n• Advanced Meta Ads strategies using machine learning\n• Google's latest algorithm updates and what they mean for your campaigns\n• New AI tools revolutionizing creative production\n\nJoin thousands of marketers staying ahead of the curve with data-driven strategies powered by AI.`,
       });
       setIsModalOpen(true);
       setIsGenerating(false);
@@ -91,6 +104,7 @@ const isValidEmail = (email: string): boolean => {
               Join our free AI Insider newsletter for weekly tactics, news, and AI tool
               recommendations that top marketers use.
             </p>
+
             <div className="mt-8 flex flex-col sm:flex-row gap-3 max-w-lg mx-auto">
               <Input
                 type="email"
@@ -100,15 +114,26 @@ const isValidEmail = (email: string): boolean => {
                 className="flex-grow bg-white text-foreground"
                 onKeyDown={(e) => e.key === 'Enter' && handleSubscribe()}
               />
+
               <Button
                 onClick={handleSubscribe}
                 variant="secondary"
                 size="lg"
                 className="font-bold"
+                disabled={isGenerating}
               >
-                Subscribe
+                {isGenerating ? 'Processing...' : 'Subscribe'}
               </Button>
-             
+
+              <Button
+                onClick={handlePreview}
+                variant="outline"
+                size="lg"
+                className="font-semibold"
+                disabled={isGenerating}
+              >
+                Preview
+              </Button>
             </div>
           </div>
         </div>
