@@ -14,14 +14,18 @@ app.use(express.json());
 // ✅ CORS: Allow both local dev and your deployed frontend
 app.use(cors({
   origin: [
-    "http://localhost:5173",             // local dev
-    "https://entagrel-frontend.onrender.com", // frontend on Render
-    "https://entagrel.com",              // your custom backend domain
-    "https://www.entagrel.com"           // optional www version
+    "http://localhost:5173",
+    "http://localhost:5174",
+    "http://localhost:5175",              // ✅ covers your current Vite port
+    "https://entagrel.com",               // ✅ backend custom domain
+    "https://www.entagrel.com",           // ✅ www version
+    "https://entagrel-frontend.onrender.com" // ✅ Render frontend (if used)
   ],
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type"],
+  methods: ["GET", "POST", "OPTIONS"],     // ✅ allow preflight
+  allowedHeaders: ["Content-Type"],        // ✅ allow JSON headers
+  credentials: true,                       // ✅ optional: if you send cookies later
 }));
+
 
 
 // ✅ Health check route for Render
