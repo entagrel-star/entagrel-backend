@@ -12,19 +12,31 @@ const prisma = new PrismaClient();
 app.use(express.json());
 
 // ✅ CORS: Allow both local dev and your deployed frontend
-app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "http://localhost:5174",
-    "http://localhost:5175",              // ✅ covers your current Vite port
-    "https://entagrel.com",               // ✅ backend custom domain
-    "https://www.entagrel.com",           // ✅ www version
-    "https://entagrel-frontend.onrender.com" // ✅ Render frontend (if used)
-  ],
-  methods: ["GET", "POST", "OPTIONS"],     // ✅ allow preflight
-  allowedHeaders: ["Content-Type"],        // ✅ allow JSON headers
-  credentials: true,                       // ✅ optional: if you send cookies later
-}));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
+  "https://entagrel.com",
+  "https://www.entagrel.com",
+  "https://entagrel-frontend.onrender.com"
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin!)) {
+    res.header("Access-Control-Allow-Origin", origin);
+  }
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Content-Type");
+  res.header("Access-Control-Allow-Credentials", "true");
+
+  // ✅ Handle preflight (OPTIONS) requests immediately
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(200);
+  }
+
+  next();
+});
 
 
 
