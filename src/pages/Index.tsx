@@ -1,10 +1,9 @@
-import Header from '@/components/Header';
-import Hero from '@/components/Hero';
-import Services from '@/components/Services';
-import Process from '@/components/Process';
-import Footer from '@/components/Footer';
-
-
+import Header from "@/components/Header";
+import Hero from "@/components/Hero";
+import Services from "@/components/Services";
+import Process from "@/components/Process";
+import CTA from "@/components/CTA"; // ✅ added
+import Footer from "@/components/Footer";
 
 const Index = () => {
   return (
@@ -14,10 +13,10 @@ const Index = () => {
         <Hero />
         <Services />
         <Process />
-        
+
+        {/* ✅ Add CTA only once before footer */}
+        <CTA />
       </main>
-      <Footer />
-      
     </div>
   );
 };
