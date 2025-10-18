@@ -1,59 +1,49 @@
-// Server/server.ts
+// server.ts
 import dotenv from "dotenv";
 dotenv.config();
 
 import express from "express";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import adminRoutes from "./routes/adminRoutes";
+import blogRoutes from "./routes/blogRoutes";
 
 const app = express();
 const prisma = new PrismaClient();
 
-// Use express.json() to parse JSON body
+// ✅ Parse incoming JSON
 app.use(express.json());
 
-// Allowed origins - add/remove as needed
-const allowedOrigins = new Set([
+// ✅ Allowed origins for frontend
+const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
   "http://localhost:5175",
   "https://entagrel.com",
   "https://www.entagrel.com",
-  "https://entagrel-frontend.onrender.com"
-]);
+  "https://entagrel-frontend.onrender.com",
+];
 
-// CORS middleware that handles preflight and sets proper headers
-app.use((req, res, next) => {
-  const origin = req.headers.origin as string | undefined;
+app.use(
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+    credentials: true,
+  })
+);
 
-  if (origin && allowedOrigins.has(origin)) {
-    res.header("Access-Control-Allow-Origin", origin);
-  }
-
-  // Always allow these for preflight and requests
-  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  // If you will use cookies or auth later, keep this true; otherwise can be omitted
-  res.header("Access-Control-Allow-Credentials", "true");
-
-  // Respond to preflight requests fast
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-
-  next();
-});
-
-// Health check for Render or other platforms
+// ✅ Health check route
 app.get("/healthz", (_req, res) => {
   res.send("Server is healthy 🚀");
 });
 
-// Root - quick message
+// ✅ Root endpoint
 app.get("/", (_req, res) => {
   res.send("Entagrel Backend is running!");
 });
 
-// Save email endpoint
+// ✅ Newsletter subscription route
 app.post("/api/saveEmail", async (req, res) => {
   const { email } = req.body;
 
@@ -71,7 +61,6 @@ app.post("/api/saveEmail", async (req, res) => {
   } catch (err: any) {
     console.error("❌ Subscription error:", err);
 
-    // Prisma unique constraint code for duplicate
     if (err?.code === "P2002") {
       return res.status(400).json({ error: "Email already subscribed" });
     }
@@ -80,7 +69,11 @@ app.post("/api/saveEmail", async (req, res) => {
   }
 });
 
-// Use Render's dynamic PORT or fallback to 5000
+// ✅ Admin and Blog Routes
+app.use("/api/admin", adminRoutes);
+app.use("/api/blogs", blogRoutes);
+
+// ✅ Use Render's dynamic port
 const PORT = process.env.PORT ? Number(process.env.PORT) : 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Server running on port ${PORT}`);
