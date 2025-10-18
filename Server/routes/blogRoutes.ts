@@ -1,3 +1,4 @@
+// ✅ Fix TypeScript for req.user
 import express from "express";
 import { PrismaClient } from "@prisma/client";
 import { authMiddleware } from "../utils/authMiddleware";
@@ -5,6 +6,7 @@ import { sendEmail } from "../utils/sendEmail";
 
 const router = express.Router();
 const prisma = new PrismaClient();
+
 
 // ✅ Get all blogs
 router.get("/", async (req, res) => {
@@ -31,7 +33,7 @@ router.post("/", authMiddleware, async (req, res) => {
       description,
       content,
       thumbnail,
-      authorId: req.user.id,
+      authorId: req.user?.id || "unknown",
     },
   });
 

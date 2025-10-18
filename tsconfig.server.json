@@ -2,11 +2,18 @@
   "compilerOptions": {
     "target": "ES2020",
     "module": "CommonJS",
-    "rootDir": "./",
-    "outDir": "./dist",
+    "rootDir": "./Server",
+    "outDir": "./dist/Server",
     "esModuleInterop": true,
+    "skipLibCheck": true,
+    "strict": true,
     "resolveJsonModule": true,
-    "skipLibCheck": true
+    "typeRoots": ["./node_modules/@types"],  // ✅ removed the "./" that caused the issue
+    "moduleResolution": "node"
   },
-  "include": ["Server/**/*.ts"]
+  "include": [
+    "Server/**/*.ts",
+    "global.d.ts"   // ✅ ensures req.user typing is loaded
+  ],
+  "exclude": ["node_modules", "dist", "src", "public"]
 }
