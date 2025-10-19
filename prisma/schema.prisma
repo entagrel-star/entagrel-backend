@@ -38,3 +38,14 @@ model Blog {
   authorId    String?  @db.ObjectId
   author      Admin?   @relation(fields: [authorId], references: [id])
 }
+
+model EmailJob {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  to        String
+  subject   String
+  body      String
+  status    String   @default("pending")
+  attempts  Int      @default(0)
+  createdAt DateTime @default(now())
+  sentAt    DateTime?
+}
