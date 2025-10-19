@@ -12,7 +12,7 @@ const Login: React.FC = () => {
     setError("");
 
     try {
-      const API = (import.meta as any).env?.VITE_API_URL || window.location.origin;
+      const API = (await import('../../lib/api')).getApiUrl();
       const res = await fetch(`${API}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

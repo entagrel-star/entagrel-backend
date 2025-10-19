@@ -1,5 +1,6 @@
 // src/components/newsletter-signup.tsx
 import { useState } from "react";
+import { getApiUrl } from '@/lib/api';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Mail } from "lucide-react";
@@ -19,7 +20,7 @@ export default function NewsletterSignup() {
       return;
     }
 
-    const API = import.meta.env.VITE_API_URL;
+    const API = getApiUrl();
     if (!API) {
       toast.error("Server URL is not configured. Check environment variables.");
       return;

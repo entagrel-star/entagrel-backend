@@ -25,12 +25,12 @@ export default function AdminPage() {
     if (!title || !slug || !content) return toast.error('Title, slug and content are required');
     setLoading(true);
     try {
-      const API = import.meta.env.VITE_API_URL;
-  const headers: any = { 'Content-Type': 'application/json' };
-  const t = sessionStorage.getItem('admin_token');
-  if (t) headers['Authorization'] = `Bearer ${t}`;
+      const API = (await import('@/lib/api')).getApiUrl();
+      const headers: any = { 'Content-Type': 'application/json' };
+      const t = sessionStorage.getItem('admin_token');
+      if (t) headers['Authorization'] = `Bearer ${t}`;
 
-  const res = await fetch(`${API}/api/blogs`, {
+      const res = await fetch(`${API}/api/blogs`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ title, slug, category, description, thumbnail, content, notify }),
@@ -49,8 +49,8 @@ export default function AdminPage() {
     e?.preventDefault();
     if (!email || !password) return toast.error('Enter email and password');
     try {
-      const API = import.meta.env.VITE_API_URL;
-  const res = await fetch(`${API}/api/admin/login`, {
+      const API = (await import('@/lib/api')).getApiUrl();
+      const res = await fetch(`${API}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -67,7 +67,7 @@ export default function AdminPage() {
     }
       // fetch admin info after login
       try {
-        const API = import.meta.env.VITE_API_URL;
+        const API = (await import('@/lib/api')).getApiUrl();
         const t = sessionStorage.getItem('admin_token');
         const headers: any = { 'Content-Type': 'application/json' };
         if (t) headers['Authorization'] = `Bearer ${t}`;

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { getApiUrl } from '@/lib/api';
 import { useScrollAnimation } from '@/hooks/useScrollAnimation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,7 +36,7 @@ const Newsletter = () => {
     }
 
     try {
-      const API = import.meta.env.VITE_API_URL;
+      const API = getApiUrl();
 
       if (!API) {
         throw new Error('API URL not configured. Please check .env file.');

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getApiUrl } from '@/lib/api';
 import { useParams } from 'react-router-dom';
 
 export default function BlogPost() {
@@ -12,7 +13,8 @@ export default function BlogPost() {
     if (!slug) return;
     (async () => {
       try {
-        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/blogs/${slug}`);
+        const API = getApiUrl();
+        const res = await fetch(`${API}/api/blogs/${slug}`);
         const data = await res.json();
         setPost(data);
       } catch (err) {

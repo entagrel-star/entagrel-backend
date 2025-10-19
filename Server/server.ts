@@ -21,6 +21,7 @@ const allowedOrigins = [
   "http://localhost:5175",
   "https://entagrel.com",
   "https://www.entagrel.com",
+  "https://api.entagrel.com",
   "https://entagrel-frontend.onrender.com",
 ];
 
