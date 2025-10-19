@@ -16,6 +16,8 @@ async function main() {
   console.log('Starting integration test...');
   const email = process.env.TEST_ADMIN_EMAIL || 'integration-admin@example.com';
   const password = process.env.TEST_ADMIN_PASSWORD || 'TestPass!234';
+  const subEmail = process.env.TEST_SUB_EMAIL || 'integration-subscriber@example.com';
+  const cleanup = process.argv.includes('--cleanup');
 
   // Ensure JWT_SECRET exists for realistic flow
   if (!process.env.JWT_SECRET) {
@@ -32,7 +34,6 @@ async function main() {
   console.log('Admin upserted:', { id: admin.id, email: admin.email });
 
   // Ensure at least one subscriber
-  const subEmail = process.env.TEST_SUB_EMAIL || 'integration-subscriber@example.com';
   await (prisma as any).email.upsert({ where: { email: subEmail }, update: {}, create: { email: subEmail } });
   console.log('Subscriber ensured:', subEmail);
 
@@ -82,6 +83,20 @@ async function main() {
   }
 
   console.log('Integration test completed successfully.');
+
+  if (cleanup) {
+    console.log('Cleanup requested — deleting test data');
+    try {
+      await prisma.blog.deleteMany({ where: { slug } as any });
+      // remove email jobs that reference the slug in the body
+      await (prisma as any).emailJob.deleteMany({ where: { body: { contains: slug } } });
+      await (prisma as any).email.deleteMany({ where: { email: subEmail } });
+      await prisma.admin.deleteMany({ where: { email } as any });
+      console.log('Cleanup finished');
+    } catch (e) {
+      console.warn('Cleanup error', e);
+    }
+  }
 }
 
 main().catch((e) => { console.error(e); process.exit(1); }).finally(() => prisma.$disconnect());
