@@ -1,6 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 
 // Reuse global prisma client
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
@@ -25,6 +26,33 @@ function createTransporter() {
     secure: port === 465,
     auth: { user, pass },
   });
+}
+
+function sendWithSendGrid(emails: string[], title: string, description: string | undefined, slug: string) {
+  const key = process.env.SENDGRID_API_KEY;
+  if (!key) return null;
+  sgMail.setApiKey(key);
+
+  const from = process.env.EMAIL_FROM || process.env.SENDGRID_FROM;
+
+  // Create personalizations for batching (SendGrid allows up to 1000 recipients with BCC-like personalization)
+  const msg = {
+    from,
+    personalizations: [
+      {
+        to: emails.map((e) => ({ email: e })),
+        subject: `New/Updated blog: ${title}`,
+      },
+    ],
+    content: [
+      {
+        type: 'text/html',
+        value: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
+      },
+    ],
+  } as any;
+
+  return sgMail.send(msg);
 }
 
 export default async function publishBlog(req: VercelRequest, res: VercelResponse) {
@@ -56,24 +84,35 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
       const subscribers = await prisma.email.findMany();
       const emails = subscribers.map((s) => s.email).filter(Boolean);
 
-      const transporter = createTransporter();
-      if (!transporter) {
-        console.warn('SMTP not configured; skipping notifications');
-        return res.status(200).json({ blog, notified: false, reason: 'SMTP not configured' });
-      }
+      // Prefer SendGrid (API) if configured
+      if (process.env.SENDGRID_API_KEY) {
+        // Send in batches of 500 (SendGrid supports larger batches)
+        const batchSize = 500;
+        for (let i = 0; i < emails.length; i += batchSize) {
+          const batch = emails.slice(i, i + batchSize);
+          // eslint-disable-next-line no-await-in-loop
+          await sendWithSendGrid(batch, title, description, slug);
+        }
+      } else {
+        const transporter = createTransporter();
+        if (!transporter) {
+          console.warn('SMTP not configured; skipping notifications');
+          return res.status(200).json({ blog, notified: false, reason: 'SMTP not configured' });
+        }
 
-      // Send in batches of 50
-      const batchSize = 50;
-      for (let i = 0; i < emails.length; i += batchSize) {
-        const batch = emails.slice(i, i + batchSize);
-        const mailOptions = {
-          from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-          to: batch.join(','),
-          subject: `New/Updated blog: ${title}`,
-          html: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
-        };
-        // eslint-disable-next-line no-await-in-loop
-        await transporter.sendMail(mailOptions);
+        // Send in batches of 50
+        const batchSize = 50;
+        for (let i = 0; i < emails.length; i += batchSize) {
+          const batch = emails.slice(i, i + batchSize);
+          const mailOptions = {
+            from: process.env.EMAIL_FROM || process.env.SMTP_USER,
+            to: batch.join(','),
+            subject: `New/Updated blog: ${title}`,
+            html: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
+          };
+          // eslint-disable-next-line no-await-in-loop
+          await transporter.sendMail(mailOptions);
+        }
       }
     }
 
