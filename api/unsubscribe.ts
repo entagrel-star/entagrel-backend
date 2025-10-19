@@ -1,6 +1,6 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { PrismaClient } from '@prisma/client';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
 

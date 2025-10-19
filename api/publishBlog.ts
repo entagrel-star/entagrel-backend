@@ -1,9 +1,9 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { PrismaClient } from '@prisma/client';
-import * as nodemailer from 'nodemailer';
-import * as sgMail from '@sendgrid/mail';
+import nodemailer from 'nodemailer';
+import sgMail from '@sendgrid/mail';
 import { compile } from 'xdm';
-import * as jwt from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 
 // Reuse global prisma client
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };

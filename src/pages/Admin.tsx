@@ -87,7 +87,10 @@ export default function AdminPage() {
       ) : (
         <>
           <div className="mb-4">
-            <Button variant="ghost" onClick={handleLogout}>Logout</Button>
+            <div className="flex items-center justify-between">
+              <div>Signed in as <strong>{sessionStorage.getItem('admin_email') || 'admin'}</strong></div>
+              <Button variant="ghost" onClick={handleLogout}>Logout</Button>
+            </div>
           </div>
           <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />

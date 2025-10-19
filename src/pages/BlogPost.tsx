@@ -29,16 +29,10 @@ export default function BlogPost() {
   return (
     <div className="max-w-4xl mx-auto py-12">
       <h1 className="text-3xl font-bold mb-4">{post.title}</h1>
-      <p className="text-muted-foreground mb-6">{post.description}</p>
-      {post.contentType === 'mdx' ? (
-        <div className="prose">
-          {/*
-            NOTE: MDX runtime rendering requires compiling MDX to React —
-            recommended approach: compile MDX at publish time (server-side) to a serialized format
-            or use a server-side renderer (xdm) and hydrate client-side. For now we render raw content.
-          */}
-          <div dangerouslySetInnerHTML={{ __html: post.content }} />
-        </div>
+      <p className="text-muted-foreground mb-2">{post.description}</p>
+      <p className="text-sm text-muted-foreground mb-6">By {post.author?.name || post.author?.email || 'Unknown'}</p>
+      {post.compiledHtml ? (
+        <div className="prose" dangerouslySetInnerHTML={{ __html: post.compiledHtml }} />
       ) : (
         <div dangerouslySetInnerHTML={{ __html: post.content }} />
       )}
