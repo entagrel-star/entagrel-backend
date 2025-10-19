@@ -79,44 +79,28 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
       update: { title, category: category || 'general', description, thumbnail, content },
     });
 
-    // If notify flag is set, fetch subscribers and send email notifications
+    // If notify flag is set, enqueue email jobs instead of sending inline.
     if (notify) {
       const subscribers = await prisma.email.findMany();
-      const emails = subscribers.map((s) => s.email).filter(Boolean);
+      const emails = subscribers.map((s) => s.email).filter(Boolean) as string[];
 
-      // Prefer SendGrid (API) if configured
-      if (process.env.SENDGRID_API_KEY) {
-        // Send in batches of 500 (SendGrid supports larger batches)
+      if (emails.length > 0) {
+        // Create EmailJob records in batches to avoid large single writes
         const batchSize = 500;
         for (let i = 0; i < emails.length; i += batchSize) {
           const batch = emails.slice(i, i + batchSize);
-          // eslint-disable-next-line no-await-in-loop
-          await sendWithSendGrid(batch, title, description, slug);
-        }
-      } else {
-        const transporter = createTransporter();
-        if (!transporter) {
-          console.warn('SMTP not configured; skipping notifications');
-          return res.status(200).json({ blog, notified: false, reason: 'SMTP not configured' });
-        }
-
-        // Send in batches of 50
-        const batchSize = 50;
-        for (let i = 0; i < emails.length; i += batchSize) {
-          const batch = emails.slice(i, i + batchSize);
-          const mailOptions = {
-            from: process.env.EMAIL_FROM || process.env.SMTP_USER,
-            to: batch.join(','),
+          const jobs = batch.map((to) => ({
+            to,
             subject: `New/Updated blog: ${title}`,
-            html: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
-          };
+            body: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
+          }));
           // eslint-disable-next-line no-await-in-loop
-          await transporter.sendMail(mailOptions);
+          await prisma.emailJob.createMany({ data: jobs });
         }
       }
-    }
+  }
 
-    return res.status(200).json({ success: true, blog });
+  return res.status(200).json({ success: true, blog });
   } catch (err: any) {
     console.error('publishBlog error:', err?.message || err);
     return res.status(500).json({ error: 'Server error', details: err?.message });
