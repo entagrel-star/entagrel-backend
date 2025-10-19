@@ -9,11 +9,21 @@ import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import BlogEditor from "./pages/admin/BlogEditor";
 import Layout from "./components/Layout";
+import { Toaster } from "sonner";
 import "./index.css";
 
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <BrowserRouter>
+      <Toaster  position="top-right"
+      richColors
+      closeButton
+      expand
+      toastOptions={{
+        style: { fontSize: "15px", borderRadius: "10px" },
+        duration: 3500,
+      }}
+    />
       <Routes>
         {/* Public Pages with layout */}
         <Route
