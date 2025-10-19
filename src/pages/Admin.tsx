@@ -18,6 +18,7 @@ export default function AdminPage() {
   const [content, setContent] = useState('');
   const [notify, setNotify] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [me, setMe] = useState<any | null>(null);
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
@@ -64,6 +65,17 @@ export default function AdminPage() {
     } catch (err: any) {
       toast.error(err?.message || 'Login failed');
     }
+      // fetch admin info after login
+      try {
+        const API = import.meta.env.VITE_API_URL;
+        const t = sessionStorage.getItem('admin_token');
+        const headers: any = { 'Content-Type': 'application/json' };
+        if (t) headers['Authorization'] = `Bearer ${t}`;
+        const resp = await fetch(`${API}/api/admin/me`, { headers });
+        if (resp.ok) setMe(await resp.json());
+      } catch (e) {
+        // ignore
+      }
   };
 
   const handleLogout = () => {
@@ -92,6 +104,22 @@ export default function AdminPage() {
               <Button variant="ghost" onClick={handleLogout}>Logout</Button>
             </div>
           </div>
+          {me?.admin && (
+            <div className="mb-4 border p-4 rounded">
+              <div className="text-sm text-muted-foreground">Admin ID: <code>{me.admin.id}</code></div>
+              <div className="text-sm">Email: {me.admin.email}</div>
+              {me.recent?.length > 0 && (
+                <div className="mt-3">
+                  <div className="text-sm font-medium">Recent posts</div>
+                  <ul className="list-disc pl-5">
+                    {me.recent.map((r: any) => (
+                      <li key={r.id}><strong>{r.title}</strong> — {new Date(r.createdAt).toLocaleString()}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          )}
           <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Slug (url-friendly)" value={slug} onChange={(e) => setSlug(e.target.value)} />
