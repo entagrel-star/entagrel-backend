@@ -5,9 +5,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 export default function AdminPage() {
-  // simple client-side auth: store admin secret in sessionStorage
-  const [adminSecret, setAdminSecret] = useState(() => sessionStorage.getItem('admin_secret') || '');
-  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem('admin_secret'));
+  // client-side auth: obtain JWT from server and store in sessionStorage
+  const [adminSecret, setAdminSecret] = useState(() => sessionStorage.getItem('admin_password') || '');
+  const [token, setToken] = useState(() => sessionStorage.getItem('admin_token') || '');
+  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem('admin_token'));
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [category, setCategory] = useState('general');
@@ -23,9 +24,9 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const API = import.meta.env.VITE_API_URL;
-      const headers: any = { 'Content-Type': 'application/json' };
-      const secret = sessionStorage.getItem('admin_secret');
-      if (secret) headers['x-admin-secret'] = secret;
+  const headers: any = { 'Content-Type': 'application/json' };
+  const t = sessionStorage.getItem('admin_token');
+  if (t) headers['Authorization'] = `Bearer ${t}`;
 
       const res = await fetch(`${API}/api/publishBlog`, {
         method: 'POST',
@@ -42,17 +43,33 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogin = (e?: React.FormEvent) => {
+  const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
     if (!adminSecret) return toast.error('Enter admin secret');
-    sessionStorage.setItem('admin_secret', adminSecret);
-    setLoggedIn(true);
-    toast.success('Logged in');
+    try {
+      const API = import.meta.env.VITE_API_URL;
+      const res = await fetch(`${API}/api/adminLogin`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminSecret }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || 'Login failed');
+      sessionStorage.setItem('admin_token', data.token);
+      sessionStorage.setItem('admin_password', adminSecret);
+      setToken(data.token);
+      setLoggedIn(true);
+      toast.success('Logged in');
+    } catch (err: any) {
+      toast.error(err?.message || 'Login failed');
+    }
   };
 
   const handleLogout = () => {
-    sessionStorage.removeItem('admin_secret');
+    sessionStorage.removeItem('admin_token');
+    sessionStorage.removeItem('admin_password');
     setAdminSecret('');
+    setToken('');
     setLoggedIn(false);
     toast.success('Logged out');
   };

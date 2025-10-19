@@ -2,6 +2,7 @@ import { VercelRequest, VercelResponse } from '@vercel/node';
 import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
+import { compile } from 'xdm';
 
 // Reuse global prisma client
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
@@ -73,11 +74,24 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
   if (!title || !slug || !content) return res.status(400).json({ error: 'Missing required fields' });
 
   try {
+    let compiledHtml: string | undefined = undefined;
+    if ((req.body.contentType || 'mdx') === 'mdx') {
+      try {
+        const compiled = await compile(content, { jsx: true });
+        compiledHtml = String(compiled);
+      } catch (e) {
+        console.warn('MDX compile failed, storing raw content');
+      }
+    }
+
+    const createData: any = { title, slug, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml };
+    const updateData: any = { title, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml };
+
     const blog = await prisma.blog.upsert({
       where: { slug },
-      create: { title, slug, category: category || 'general', description, thumbnail, content },
-      update: { title, category: category || 'general', description, thumbnail, content },
-    });
+      create: createData,
+      update: updateData,
+    } as any);
 
     // If notify flag is set, enqueue email jobs instead of sending inline.
     if (notify) {

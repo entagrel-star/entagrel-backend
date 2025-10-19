@@ -32,6 +32,7 @@ model Blog {
   thumbnail   String?
   content     String
   contentType String   @default("mdx")
+  compiledHtml String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   isPublished Boolean  @default(true)
