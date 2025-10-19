@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Blog from "./pages/Blog";
 import NotFound from "./pages/NotFound";
 import { ContactUs } from "./pages/Contact-Us";
+import AdminPage from "./pages/Admin"; // ✅ Import your Admin Page
 
 const queryClient = new QueryClient();
 
@@ -20,8 +21,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/blog" element={<Blog />} />
-          <Route path="/contact-us" element={<ContactUs />} /> {/* ✅ Added route */}
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/contact-us" element={<ContactUs />} />
+          <Route path="/admin" element={<AdminPage />} /> {/* ✅ Admin page */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

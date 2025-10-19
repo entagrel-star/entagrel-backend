@@ -1,6 +1,9 @@
-static:
-  publish: dist
-  redirects:
-    - source: /*
-      destination: /index.html
-      status: 200
+services:
+  - type: static
+    name: entagrel-frontend
+    buildCommand: npm ci && npm run build
+    publishPath: dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
