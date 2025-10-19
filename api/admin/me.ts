@@ -37,8 +37,9 @@ export default async function me(req: VercelRequest, res: VercelResponse) {
     if (adminId) {
       admin = await prisma.admin.findUnique({ where: { id: adminId } });
     }
-    const recent = adminId ? await prisma.blog.findMany({ where: { authorId: adminId }, orderBy: { createdAt: 'desc' }, take: 5 }) : [];
-    return res.status(200).json({ admin: admin ? { id: admin.id, email: admin.email, name: admin.name } : null, recent });
+  const recent = adminId ? await prisma.blog.findMany({ where: { authorId: adminId }, orderBy: { createdAt: 'desc' }, take: 5 }) : [];
+  const pendingJobsCount = adminId ? await (prisma as any).emailJob.count({ where: { status: 'pending' } }) : 0;
+  return res.status(200).json({ admin: admin ? { id: admin.id, email: admin.email, name: admin.name } : null, recent, pendingJobsCount });
   } catch (err: any) {
     console.error('admin/me error', err);
     return res.status(500).json({ error: 'Server error' });

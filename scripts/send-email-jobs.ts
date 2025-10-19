@@ -12,7 +12,8 @@ async function main() {
   sgMail.setApiKey(key);
 
   // Fetch pending jobs
-  const jobs = await prisma.emailJob.findMany({ where: { status: 'pending' }, take: 100 });
+  // prisma client may have generated types that don't yet include EmailJob in some environments
+  const jobs = await (prisma as any).emailJob.findMany({ where: { status: 'pending' }, take: 100 });
   if (jobs.length === 0) {
     console.log('No pending email jobs');
     return;
@@ -28,7 +29,7 @@ async function main() {
       } as any;
       await sgMail.send(msg);
 
-      await prisma.emailJob.update({ where: { id: job.id }, data: { status: 'sent', sentAt: new Date() } });
+  await (prisma as any).emailJob.update({ where: { id: job.id }, data: { status: 'sent', sentAt: new Date() } });
       console.log('Sent', job.id);
     } catch (err) {
       console.error('Failed', job.id, err);
@@ -37,7 +38,7 @@ async function main() {
       if (attempts >= 5) {
         update.status = 'failed';
       }
-      await prisma.emailJob.update({ where: { id: job.id }, data: update });
+  await (prisma as any).emailJob.update({ where: { id: job.id }, data: update });
       // simple backoff between sends to avoid throttling
       await new Promise((r) => setTimeout(r, 500 * attempts));
     }

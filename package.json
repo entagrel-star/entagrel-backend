@@ -11,7 +11,9 @@
     "lint": "eslint --config ./eslint.config.cjs .",
     "preview": "vite preview",
     "server": "node dist/Server/server.js",
-    "test": "jest --runInBand"
+    "test": "jest --runInBand",
+    "seed:test": "npx ts-node scripts/integration-admin-publish.ts",
+    "cleanup:test": "npx ts-node scripts/cleanup-test-data.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

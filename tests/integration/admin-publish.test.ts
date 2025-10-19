@@ -1,4 +1,6 @@
+/// <reference types="jest" />
 import { PrismaClient } from '@prisma/client';
+import { describe, it, beforeAll, afterAll, expect, jest } from '@jest/globals';
 import * as bcrypt from 'bcryptjs';
 import adminLogin from '../../api/adminLogin';
 import publishBlog from '../../api/publishBlog';
@@ -17,7 +19,7 @@ describe('integration: admin publish', () => {
   const testEmail = process.env.TEST_ADMIN_EMAIL || 'jest-admin@example.com';
   const testPass = process.env.TEST_ADMIN_PASSWORD || 'JestPass!234';
   let adminId: string | undefined;
-  let slug = 'jest-integration-' + Date.now();
+  const slug = 'jest-integration-' + Date.now();
 
   beforeAll(async () => {
     const hashed = await bcrypt.hash(testPass, 10);

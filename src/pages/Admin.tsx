@@ -108,6 +108,9 @@ export default function AdminPage() {
             <div className="mb-4 border p-4 rounded">
               <div className="text-sm text-muted-foreground">Admin ID: <code>{me.admin.id}</code></div>
               <div className="text-sm">Email: {me.admin.email}</div>
+              {typeof me.pendingJobsCount === 'number' && (
+                <div className="text-sm mt-2">Queued email jobs: <strong>{me.pendingJobsCount}</strong></div>
+              )}
               {me.recent?.length > 0 && (
                 <div className="mt-3">
                   <div className="text-sm font-medium">Recent posts</div>

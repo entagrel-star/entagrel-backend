@@ -28,7 +28,8 @@ export default async function unsubscribe(req: VercelRequest, res: VercelRespons
 
   if (!email) return res.status(400).json({ error: 'Missing email' });
   try {
-    await prisma.email.updateMany({ where: { email }, data: { unsubscribed: true } });
+  // Cast to any because generated Prisma types may be out-of-sync in some environments
+  await (prisma as any).email.updateMany({ where: { email }, data: { unsubscribed: true } as any });
     return res.status(200).json({ success: true });
   } catch (err: any) {
     return res.status(500).json({ error: 'DB error', details: err?.message });

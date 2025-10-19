@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcryptjs';
+import * as bcrypt from 'bcryptjs';
 
 const prisma = new PrismaClient();
 
