@@ -26,12 +26,21 @@ async function main() {
         subject: job.subject,
         html: job.body,
       } as any;
+
       await sgMail.send(msg);
+
       await prisma.emailJob.update({ where: { id: job.id }, data: { status: 'sent', sentAt: new Date() } });
       console.log('Sent', job.id);
     } catch (err) {
       console.error('Failed', job.id, err);
-      await prisma.emailJob.update({ where: { id: job.id }, data: { attempts: job.attempts + 1 } });
+      const attempts = (job.attempts || 0) + 1;
+      const update: any = { attempts };
+      if (attempts >= 5) {
+        update.status = 'failed';
+      }
+      await prisma.emailJob.update({ where: { id: job.id }, data: update });
+      // simple backoff between sends to avoid throttling
+      await new Promise((r) => setTimeout(r, 500 * attempts));
     }
   }
 }
