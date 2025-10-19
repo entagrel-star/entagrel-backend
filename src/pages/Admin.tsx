@@ -6,7 +6,8 @@ import { toast } from 'sonner';
 
 export default function AdminPage() {
   // client-side auth: obtain JWT from server and store in sessionStorage
-  const [adminSecret, setAdminSecret] = useState(() => sessionStorage.getItem('admin_password') || '');
+  const [email, setEmail] = useState(() => sessionStorage.getItem('admin_email') || '');
+  const [password, setPassword] = useState('');
   const [token, setToken] = useState(() => sessionStorage.getItem('admin_token') || '');
   const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem('admin_token'));
   const [title, setTitle] = useState('');
@@ -45,18 +46,18 @@ export default function AdminPage() {
 
   const handleLogin = async (e?: React.FormEvent) => {
     e?.preventDefault();
-    if (!adminSecret) return toast.error('Enter admin secret');
+    if (!email || !password) return toast.error('Enter email and password');
     try {
       const API = import.meta.env.VITE_API_URL;
       const res = await fetch(`${API}/api/adminLogin`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: adminSecret }),
+        body: JSON.stringify({ email, password }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || 'Login failed');
       sessionStorage.setItem('admin_token', data.token);
-      sessionStorage.setItem('admin_password', adminSecret);
+      sessionStorage.setItem('admin_email', email);
       setToken(data.token);
       setLoggedIn(true);
       toast.success('Logged in');
@@ -67,8 +68,8 @@ export default function AdminPage() {
 
   const handleLogout = () => {
     sessionStorage.removeItem('admin_token');
-    sessionStorage.removeItem('admin_password');
-    setAdminSecret('');
+    sessionStorage.removeItem('admin_email');
+    setEmail('');
     setToken('');
     setLoggedIn(false);
     toast.success('Logged out');
@@ -79,7 +80,8 @@ export default function AdminPage() {
       <h1 className="text-2xl font-bold mb-4">Admin — Publish Blog</h1>
       {!loggedIn ? (
         <form onSubmit={handleLogin} className="max-w-md space-y-4">
-          <Input placeholder="Admin secret" value={adminSecret} onChange={(e) => setAdminSecret(e.target.value)} />
+          <Input placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
+          <Input placeholder="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
           <Button type="submit">Login</Button>
         </form>
       ) : (

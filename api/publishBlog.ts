@@ -1,7 +1,7 @@
 import { VercelRequest, VercelResponse } from '@vercel/node';
 import { PrismaClient } from '@prisma/client';
-import nodemailer from 'nodemailer';
-import sgMail from '@sendgrid/mail';
+import * as nodemailer from 'nodemailer';
+import * as sgMail from '@sendgrid/mail';
 import { compile } from 'xdm';
 import * as jwt from 'jsonwebtoken';
 
@@ -60,15 +60,36 @@ function sendWithSendGrid(emails: string[], title: string, description: string |
 export default async function publishBlog(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST allowed' });
 
-  // Simple admin auth: require header 'x-admin-secret' to match ADMIN_PASSWORD
-  const adminSecret = req.headers['x-admin-secret'] as string | undefined;
-  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
-  if (!ADMIN_PASSWORD) {
-    console.warn('ADMIN_PASSWORD is not configured; publish endpoint is disabled');
-    return res.status(500).json({ error: 'Server not configured' });
-  }
-  if (!adminSecret || adminSecret !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: 'Unauthorized' });
+  // Admin auth: prefer Bearer JWT (signed with JWT_SECRET). For backwards
+  // compatibility, if no JWT_SECRET is configured, allow old ADMIN_PASSWORD
+  // header 'x-admin-secret' to authenticate.
+  const authHeader = (req.headers['authorization'] || req.headers['Authorization']) as string | undefined;
+  const JWT_SECRET = process.env.JWT_SECRET;
+  let authorId: string | undefined;
+
+  if (JWT_SECRET && authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.slice('Bearer '.length);
+    try {
+      const payload = jwt.verify(token, JWT_SECRET) as any;
+      if (payload && payload.role === 'admin' && payload.id) {
+        authorId = payload.id;
+      } else {
+        return res.status(401).json({ error: 'Unauthorized' });
+      }
+    } catch (e) {
+      return res.status(401).json({ error: 'Invalid token' });
+    }
+  } else {
+    // fallback: shared ADMIN_PASSWORD header (legacy)
+    const adminSecret = req.headers['x-admin-secret'] as string | undefined;
+    const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+    if (!ADMIN_PASSWORD) {
+      console.warn('ADMIN_PASSWORD is not configured; publish endpoint is disabled');
+      return res.status(500).json({ error: 'Server not configured' });
+    }
+    if (!adminSecret || adminSecret !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
   }
 
   const { id, title, slug, category, description, thumbnail, content, notify } = req.body;
@@ -85,8 +106,8 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
       }
     }
 
-    const createData: any = { title, slug, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml };
-    const updateData: any = { title, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml };
+  const createData: any = { title, slug, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml, authorId };
+  const updateData: any = { title, category: category || 'general', description, thumbnail, content, contentType: req.body.contentType || 'mdx', compiledHtml, authorId };
 
     const blog = await prisma.blog.upsert({
       where: { slug },
