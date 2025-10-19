@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { compile } from 'xdm';
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 
 // Reuse global prisma client
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
@@ -105,15 +105,18 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
         for (let i = 0; i < emails.length; i += batchSize) {
           const batch = emails.slice(i, i + batchSize);
           const jobs = batch.map((to) => {
-            const token = (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD) ? jwt.sign({ email: to }, (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD) as string, { expiresIn: '30d' }) : undefined;
-            const unsubscribeLink = token ? `${process.env.SITE_URL || ''}/api/unsubscribe?token=${token}` : `${process.env.SITE_URL || ''}/api/unsubscribe?email=${encodeURIComponent(to)}`;
+            const token = (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD)
+              ? jwt.sign({ email: to }, (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD) as string, { expiresIn: '30d' })
+              : undefined;
+            const unsubscribeLink = token
+              ? `${process.env.SITE_URL || ''}/api/unsubscribe?token=${token}`
+              : `${process.env.SITE_URL || ''}/api/unsubscribe?email=${encodeURIComponent(to)}`;
             return {
               to,
               subject: `New/Updated blog: ${title}`,
               body: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p><p><a href="${unsubscribeLink}">Unsubscribe</a></p>`,
             };
           });
-          // eslint-disable-next-line no-await-in-loop
           await (prisma as any).emailJob.createMany({ data: jobs });
         }
       }
