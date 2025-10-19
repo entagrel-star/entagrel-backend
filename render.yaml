@@ -7,3 +7,9 @@ services:
       - type: rewrite
         source: /*
         destination: /index.html
+  - type: web
+    name: entagrel-backend
+    env: node
+    buildCommand: npx prisma generate && npm ci && npm run build
+    startCommand: node dist/Server/server.js
+    healthCheckPath: /healthz
