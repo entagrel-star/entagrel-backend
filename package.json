@@ -10,7 +10,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint --config ./eslint.config.cjs .",
     "preview": "vite preview",
-    "server": "node dist/Server/server.js",
+  "server": "node dist/Server/server.js",
+  "start:server": "ts-node Server/server.ts",
     "test": "jest --runInBand",
     "seed:test": "npx ts-node scripts/integration-admin-publish.ts",
     "cleanup:test": "npx ts-node scripts/cleanup-test-data.ts"

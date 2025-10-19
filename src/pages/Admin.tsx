@@ -30,7 +30,7 @@ export default function AdminPage() {
   const t = sessionStorage.getItem('admin_token');
   if (t) headers['Authorization'] = `Bearer ${t}`;
 
-      const res = await fetch(`${API}/api/publishBlog`, {
+  const res = await fetch(`${API}/api/blogs`, {
         method: 'POST',
         headers,
         body: JSON.stringify({ title, slug, category, description, thumbnail, content, notify }),
@@ -50,7 +50,7 @@ export default function AdminPage() {
     if (!email || !password) return toast.error('Enter email and password');
     try {
       const API = import.meta.env.VITE_API_URL;
-      const res = await fetch(`${API}/api/adminLogin`, {
+  const res = await fetch(`${API}/api/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),

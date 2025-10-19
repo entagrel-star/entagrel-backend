@@ -12,7 +12,8 @@ const Login: React.FC = () => {
     setError("");
 
     try {
-      const res = await fetch("https://entagrel.com/api/admin/login", {
+      const API = (import.meta as any).env?.VITE_API_URL || window.location.origin;
+      const res = await fetch(`${API}/api/admin/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
