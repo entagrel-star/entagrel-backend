@@ -30,6 +30,17 @@ function createTransporter() {
 export default async function publishBlog(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Only POST allowed' });
 
+  // Simple admin auth: require header 'x-admin-secret' to match ADMIN_PASSWORD
+  const adminSecret = req.headers['x-admin-secret'] as string | undefined;
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  if (!ADMIN_PASSWORD) {
+    console.warn('ADMIN_PASSWORD is not configured; publish endpoint is disabled');
+    return res.status(500).json({ error: 'Server not configured' });
+  }
+  if (!adminSecret || adminSecret !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   const { id, title, slug, category, description, thumbnail, content, notify } = req.body;
   if (!title || !slug || !content) return res.status(400).json({ error: 'Missing required fields' });
 

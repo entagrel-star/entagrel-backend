@@ -5,6 +5,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 
 export default function AdminPage() {
+  // simple client-side auth: store admin secret in sessionStorage
+  const [adminSecret, setAdminSecret] = useState(() => sessionStorage.getItem('admin_secret') || '');
+  const [loggedIn, setLoggedIn] = useState(() => !!sessionStorage.getItem('admin_secret'));
   const [title, setTitle] = useState('');
   const [slug, setSlug] = useState('');
   const [category, setCategory] = useState('general');
@@ -20,9 +23,13 @@ export default function AdminPage() {
     setLoading(true);
     try {
       const API = import.meta.env.VITE_API_URL;
+      const headers: any = { 'Content-Type': 'application/json' };
+      const secret = sessionStorage.getItem('admin_secret');
+      if (secret) headers['x-admin-secret'] = secret;
+
       const res = await fetch(`${API}/api/publishBlog`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({ title, slug, category, description, thumbnail, content, notify }),
       });
       const data = await res.json();
@@ -35,10 +42,35 @@ export default function AdminPage() {
     }
   };
 
+  const handleLogin = (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!adminSecret) return toast.error('Enter admin secret');
+    sessionStorage.setItem('admin_secret', adminSecret);
+    setLoggedIn(true);
+    toast.success('Logged in');
+  };
+
+  const handleLogout = () => {
+    sessionStorage.removeItem('admin_secret');
+    setAdminSecret('');
+    setLoggedIn(false);
+    toast.success('Logged out');
+  };
+
   return (
     <div className="min-h-screen p-8">
       <h1 className="text-2xl font-bold mb-4">Admin — Publish Blog</h1>
-      <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
+      {!loggedIn ? (
+        <form onSubmit={handleLogin} className="max-w-md space-y-4">
+          <Input placeholder="Admin secret" value={adminSecret} onChange={(e) => setAdminSecret(e.target.value)} />
+          <Button type="submit">Login</Button>
+        </form>
+      ) : (
+        <>
+          <div className="mb-4">
+            <Button variant="ghost" onClick={handleLogout}>Logout</Button>
+          </div>
+          <form onSubmit={handleSubmit} className="max-w-3xl space-y-4">
         <Input placeholder="Title" value={title} onChange={(e) => setTitle(e.target.value)} />
         <Input placeholder="Slug (url-friendly)" value={slug} onChange={(e) => setSlug(e.target.value)} />
         <Input placeholder="Category" value={category} onChange={(e) => setCategory(e.target.value)} />
@@ -52,7 +84,9 @@ export default function AdminPage() {
         <div>
           <Button type="submit" disabled={loading}>{loading ? 'Publishing...' : 'Publish'}</Button>
         </div>
-      </form>
+          </form>
+        </>
+      )}
     </div>
   );
 }
