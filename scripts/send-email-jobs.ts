@@ -26,7 +26,6 @@ async function main() {
         subject: job.subject,
         html: job.body,
       } as any;
-
       await sgMail.send(msg);
 
       await prisma.emailJob.update({ where: { id: job.id }, data: { status: 'sent', sentAt: new Date() } });

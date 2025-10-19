@@ -3,6 +3,7 @@ import { PrismaClient } from '@prisma/client';
 import nodemailer from 'nodemailer';
 import sgMail from '@sendgrid/mail';
 import { compile } from 'xdm';
+import jwt from 'jsonwebtoken';
 
 // Reuse global prisma client
 const globalForPrisma = global as unknown as { prisma?: PrismaClient };
@@ -95,21 +96,25 @@ export default async function publishBlog(req: VercelRequest, res: VercelRespons
 
     // If notify flag is set, enqueue email jobs instead of sending inline.
     if (notify) {
-      const subscribers = await prisma.email.findMany();
-      const emails = subscribers.map((s) => s.email).filter(Boolean) as string[];
+  const subscribers = await (prisma as any).email.findMany({ where: { unsubscribed: false } });
+  const emails = (subscribers as any[]).map((s) => s.email).filter(Boolean) as string[];
 
       if (emails.length > 0) {
         // Create EmailJob records in batches to avoid large single writes
         const batchSize = 500;
         for (let i = 0; i < emails.length; i += batchSize) {
           const batch = emails.slice(i, i + batchSize);
-          const jobs = batch.map((to) => ({
-            to,
-            subject: `New/Updated blog: ${title}`,
-            body: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p>`,
-          }));
+          const jobs = batch.map((to) => {
+            const token = (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD) ? jwt.sign({ email: to }, (process.env.JWT_SECRET || process.env.ADMIN_PASSWORD) as string, { expiresIn: '30d' }) : undefined;
+            const unsubscribeLink = token ? `${process.env.SITE_URL || ''}/api/unsubscribe?token=${token}` : `${process.env.SITE_URL || ''}/api/unsubscribe?email=${encodeURIComponent(to)}`;
+            return {
+              to,
+              subject: `New/Updated blog: ${title}`,
+              body: `<p>${description || ''}</p><p><a href="${process.env.SITE_URL || ''}/blog/${slug}">Read the post</a></p><p><a href="${unsubscribeLink}">Unsubscribe</a></p>`,
+            };
+          });
           // eslint-disable-next-line no-await-in-loop
-          await prisma.emailJob.createMany({ data: jobs });
+          await (prisma as any).emailJob.createMany({ data: jobs });
         }
       }
   }

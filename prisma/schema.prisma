@@ -10,6 +10,7 @@ datasource db {
 model Email {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
+  unsubscribed Boolean @default(false)
   createdAt DateTime @default(now())
 }
 
