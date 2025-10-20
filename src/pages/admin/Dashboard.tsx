@@ -9,11 +9,21 @@ const Dashboard: React.FC = () => {
   if (!token) navigate("/admin");
 
   useEffect(() => {
-    fetch("https://entagrel.com/api/blogs")
-      .then((res) => res.json())
+    const API = import.meta.env.VITE_API_URL;
+    fetch(`${API}/api/blogs`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          localStorage.removeItem("token");
+          navigate("/admin");
+          return [];
+        }
+        return res.json();
+      })
       .then((data) => setBlogs(data))
       .catch((err) => console.error("Error fetching blogs:", err));
-  }, []);
+  }, [token, navigate]);
 
   const handleLogout = () => {
     localStorage.removeItem("token");

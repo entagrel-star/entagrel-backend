@@ -6,7 +6,9 @@ export default function BlogSingle() {
   const [blog, setBlog] = useState<any>(null);
 
   useEffect(() => {
-    fetch(`https://entagrel.com/api/blogs/${slug}`)
+    const API = import.meta.env.VITE_API_URL;
+    fetch(`${API}/api/blogs/${slug}`)
+
       .then((res) => res.json())
       .then((data) => setBlog(data))
       .catch((err) => console.error("Error fetching blog:", err));

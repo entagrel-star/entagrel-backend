@@ -19,7 +19,6 @@ const BlogEditor: React.FC = () => {
 
     const API = import.meta.env.VITE_API_URL;
     const res = await fetch(`${API}/api/blogs`, {
-
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -34,6 +33,13 @@ const BlogEditor: React.FC = () => {
         content,
       }),
     });
+
+    if (res.status === 401) {
+      localStorage.removeItem("token");
+      setMessage("Session expired. Please log in again.");
+      setTimeout(() => navigate("/admin"), 1500);
+      return;
+    }
 
     const data = await res.json();
     if (res.ok) {
@@ -95,6 +101,11 @@ const BlogEditor: React.FC = () => {
           className="border p-3 rounded-md w-full font-mono"
           rows={10}
         />
+        {/* Live HTML Preview */}
+        <div className="mt-4">
+          <div className="font-semibold mb-2">Live Preview:</div>
+          <div className="border p-3 rounded-md bg-gray-50" dangerouslySetInnerHTML={{ __html: content }} />
+        </div>
 
         {message && <p className="text-center text-sm text-blue-600">{message}</p>}
 

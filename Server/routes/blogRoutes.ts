@@ -25,8 +25,17 @@ router.get("/:slug", async (req, res) => {
 router.post("/", authMiddleware, async (req, res) => {
   const { title, slug, category, description, content, thumbnail } = req.body;
 
-  const blog = await prisma.blog.create({
-    data: {
+  const blog = await prisma.blog.upsert({
+    where: { slug },
+    update: {
+      title,
+      category,
+      description,
+      content,
+      thumbnail,
+      authorId: req.user?.id || "unknown",
+    },
+    create: {
       title,
       slug,
       category,

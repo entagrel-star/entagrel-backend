@@ -1,6 +1,7 @@
 import React, { Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import ProtectedRoute from "./components/ProtectedRoute";
 import { Toaster } from "sonner";
 import "./index.css";
 
@@ -68,10 +69,15 @@ createRoot(document.getElementById("root")!).render(
             }
           />
 
-          {/* Admin Pages (without Header/Footer) */}
+
+          {/* Admin Login (public) */}
           <Route path="/admin" element={<Login />} />
-          <Route path="/admin/dashboard" element={<Dashboard />} />
-          <Route path="/admin/new" element={<BlogEditor />} />
+
+          {/* Protected Admin Routes */}
+          <Route element={<ProtectedRoute />}>
+            <Route path="/admin/dashboard" element={<Dashboard />} />
+            <Route path="/admin/new" element={<BlogEditor />} />
+          </Route>
 
           {/* Fallback */}
           <Route path="*" element={<App />} />
