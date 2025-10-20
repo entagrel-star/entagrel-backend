@@ -12,7 +12,8 @@ const BlogSingle = React.lazy(() => import("./pages/BlogSingle"));
 const Login = React.lazy(() => import("./pages/admin/Login"));
 const Dashboard = React.lazy(() => import("./pages/admin/Dashboard"));
 const BlogEditor = React.lazy(() => import("./pages/admin/BlogEditor"));
-const Layout = React.lazy(() => import("./components/Layout"));
+const MainLayout = React.lazy(() => import("./components/Layout"));
+const BlogPostLayout = React.lazy(() => import("./components/BlogPostLayout"));
 
 function Loading() {
   return (
@@ -37,34 +38,20 @@ createRoot(document.getElementById("root")!).render(
       />
       <Suspense fallback={<Loading />}>
         <Routes>
-          {/* Public Pages with layout */}
-          <Route
-            path="/"
-            element={
-              <React.Suspense fallback={<Loading />}>
-                <Layout>
-                  <Index />
-                </Layout>
-              </React.Suspense>
-            }
-          />
-          <Route
-            path="/blog"
-            element={
-              <React.Suspense fallback={<Loading />}>
-                <Layout>
-                  <Blog />
-                </Layout>
-              </React.Suspense>
-            }
-          />
+          {/* General Pages with MainLayout (nav/footer) */}
+          <Route element={<MainLayout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/blog" element={<Blog />} />
+          </Route>
+
+          {/* Standalone Blog Reader (no nav/footer) */}
           <Route
             path="/blog/:slug"
             element={
               <React.Suspense fallback={<Loading />}>
-                <Layout>
+                <BlogPostLayout>
                   <BlogSingle />
-                </Layout>
+                </BlogPostLayout>
               </React.Suspense>
             }
           />
