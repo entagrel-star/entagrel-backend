@@ -17,7 +17,9 @@ const BlogEditor: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const res = await fetch("https://entagrel.com/api/blogs", {
+    const API = import.meta.env.VITE_API_URL;
+    const res = await fetch(`${API}/api/blogs`, {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",
