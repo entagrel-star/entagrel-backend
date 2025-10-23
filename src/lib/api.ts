@@ -11,3 +11,14 @@ export function getApiUrl(): string {
   // fallback to localhost for dev
   return 'http://localhost:5000';
 }
+
+export async function analyzeSeo(url: string): Promise<any> {
+  const apiUrl = getApiUrl();
+  const res = await fetch(`${apiUrl}/api/seo/analyze`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url }),
+  });
+  if (!res.ok) throw new Error('Failed to analyze URL');
+  return await res.json();
+}

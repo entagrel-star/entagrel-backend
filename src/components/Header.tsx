@@ -25,6 +25,7 @@ const Header = () => {
     { href: '#process', label: 'Process', isRoute: false },
     { href: '/blog', label: 'Blog', isRoute: true },
     { href: '/contact-us', label: 'Contact', isRoute: true }, // ✅ Updated
+    { href: '/seo', label: 'SEO', isRoute: true }, // Added SEO link
   ];
 
   const blogNavLinks = [

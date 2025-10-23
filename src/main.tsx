@@ -14,6 +14,7 @@ const Dashboard = React.lazy(() => import("./pages/admin/Dashboard"));
 const BlogEditor = React.lazy(() => import("./pages/admin/BlogEditor"));
 const MainLayout = React.lazy(() => import("./components/Layout"));
 const BlogPostLayout = React.lazy(() => import("./components/BlogPostLayout"));
+const SEOAnalyzer = React.lazy(() => import("./pages/SEOAnalyzer"));
 
 function Loading() {
   return (
@@ -42,6 +43,7 @@ createRoot(document.getElementById("root")!).render(
           <Route element={<MainLayout />}>
             <Route path="/" element={<Index />} />
             <Route path="/blog" element={<Blog />} />
+            <Route path="/seo" element={<SEOAnalyzer />} />
           </Route>
 
           {/* Standalone Blog Reader (no nav/footer) */}

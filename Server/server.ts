@@ -7,6 +7,7 @@ import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import adminRoutes from "./routes/adminRoutes";
 import blogRoutes from "./routes/blogRoutes";
+import seoRoutes from "./routes/seoRoutes";
 
 const app = express();
 const prisma = new PrismaClient();
@@ -77,6 +78,7 @@ app.post("/api/saveEmail", async (req, res) => {
 // ✅ Attach routes
 app.use("/api/admin", adminRoutes);
 app.use("/api/blogs", blogRoutes);
+app.use("/api/seo", seoRoutes);
 
 // ✅ Handle not found routes
 app.use((_req, res) => {
