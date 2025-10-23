@@ -25,6 +25,9 @@ def analyze():
         # You can filter/format the result here
         return jsonify(result)
     except Exception as e:
+        import traceback
+        print("Flask SEO Analyzer error:", str(e))
+        traceback.print_exc()
         return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':

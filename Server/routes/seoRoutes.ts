@@ -14,7 +14,8 @@ router.post('/analyze', async (req, res) => {
     const flaskRes = await axios.post('http://localhost:5001/analyze', { url });
     return res.json(flaskRes.data);
   } catch (err: any) {
-    return res.status(500).json({ error: err.message || 'SEO analysis failed' });
+    console.error('SEO analyze error:', err?.message, err?.response?.data);
+    return res.status(500).json({ error: err.message || 'SEO analysis failed', details: err?.response?.data });
   }
 });
 
