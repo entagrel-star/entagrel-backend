@@ -10,8 +10,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint --config ./eslint.config.cjs .",
     "preview": "vite preview",
-  "server": "node dist/Server/server.js",
-  "start:server": "ts-node Server/server.ts",
+    "server": "node dist/Server/server.js",
+    "start:server": "ts-node Server/server.ts",
     "test": "jest --runInBand",
     "seed:test": "npx ts-node scripts/integration-admin-publish.ts",
     "cleanup:test": "npx ts-node scripts/cleanup-test-data.ts"
@@ -73,6 +73,7 @@
     "react-resizable-panels": "^2.1.9",
     "react-router-dom": "^6.30.1",
     "recharts": "^2.15.4",
+    "sitemap": "^8.0.1",
     "sonner": "^1.7.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
