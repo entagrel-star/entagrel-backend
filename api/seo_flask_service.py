@@ -1,3 +1,7 @@
+# Add a root route for Render deployment verification
+@app.route('/')
+def home():
+    return 'Flask is running!'
 from flask import Flask, request, jsonify
 import requests
 
