@@ -1,4 +1,7 @@
 # Add a root route for Render deployment verification
+import os
+PAGESPEED_API_KEY = os.environ.get("PAGESPEED_API_KEY")
+
 @app.route('/')
 def home():
     return 'Flask is running!'
@@ -8,7 +11,7 @@ import requests
 app = Flask(__name__)
 
 # Example: Use Google PageSpeed Insights API (replace with your API key)
-PAGESPEED_API_KEY = 'AQ.Ab8RN6LRuooKBHPbFFQZGt9HfWmqfq8HFKJQ0-6B8AABem-x8A'
+
 PAGESPEED_API_URL = 'https://www.googleapis.com/pagespeedonline/v5/runPagespeed'
 
 @app.route('/analyze', methods=['POST'])
