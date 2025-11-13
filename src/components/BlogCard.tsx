@@ -1,6 +1,5 @@
 // src/components/BlogCard.tsx
 import React from 'react';
-import { Link } from 'react-router-dom';
 
 export type BlogSummary = {
   id?: string | number;
@@ -29,6 +28,13 @@ export default function BlogCard({ blog }: { blog: BlogSummary }) {
   const srcSet = makeSrcSet(thumb);
   const width = blog.thumbnailWidth || 1200;
   const height = blog.thumbnailHeight || 630;
+
+  // detect iframe and set target so links escape the iframe when embedded
+  const inBrowser = typeof window !== 'undefined';
+  const inIframe = inBrowser && window.self !== window.top;
+  const target = inIframe ? '_top' : '_self';
+
+  const href = `/blog/${blog.slug}`;
 
   return (
     <article className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -66,13 +72,28 @@ export default function BlogCard({ blog }: { blog: BlogSummary }) {
         )}
 
         <div>
-          <Link
-            to={`/blog/${blog.slug}`}
+          {/* Use a plain anchor so navigation always works.
+              - target="_top" when inside an iframe (so link escapes iframe)
+              - fallback timeout ensures navigation happens if SPA router isn't mounted */}
+          <a
+            href={href}
+            target={target}
+            rel="noopener noreferrer"
             className="text-blue-600 font-medium hover:underline"
             aria-label={`Read more about ${blog.title}`}
+            onClick={() => {
+              // fallback: if router doesn't navigate, force full navigation after short delay
+              if (inBrowser) {
+                setTimeout(() => {
+                  if (window.location.pathname !== href) {
+                    window.location.href = href;
+                  }
+                }, 250);
+              }
+            }}
           >
             Read More →
-          </Link>
+          </a>
         </div>
       </div>
     </article>
