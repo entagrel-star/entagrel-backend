@@ -5,7 +5,7 @@
   "type": "commonjs",
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc -p tsconfig.server.json",
+    "build": "vite build && tsc -p tsconfig.server.json && node scripts/generate-sitemap.js" ,
     "worker": "ts-node scripts/send-email-jobs.ts",
     "build:dev": "vite build --mode development",
     "lint": "eslint --config ./eslint.config.cjs .",
